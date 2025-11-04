@@ -1,0 +1,16 @@
+public class ControladorProyecto {
+    public CrearProyecto() {
+
+    }
+    public IngresarEntrevista(){
+
+    }
+
+    public TranscribirEntrevista(){
+
+    }
+    public Verentrevistas(){
+
+    }
+    
+}

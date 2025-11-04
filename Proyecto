@@ -1,4 +1,24 @@
 public class Proyecto {
-    
+    private NombreProyecto string;
+    private IDProyecto int;
+    private Documentos ArrayList<Documento>;
 
-}
+    public Proyecto(NombreProyecto string, IDProyecto int) {
+        this.NombreProyecto = NombreProyecto;
+        this.IDProyecto = IDProyecto;
+        this.Documentos = new ArrayList<Documento>();
+    }
+     public void agregarDocumento(Documento doc) {
+        this.Documentos.add(doc);
+    }
+
+    }
+    public void eliminarDocumento(Documento doc) {
+        this.Documentos.remove(doc);
+    }   
+    public void editarDocumento(Documento doc, Documento nuevoDoc) {
+        int index = this.Documentos.indexOf(doc);
+        if (index != -1) {
+            this.Documentos.set(index, nuevoDoc);
+        }
+    }
