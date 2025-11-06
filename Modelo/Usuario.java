@@ -1,3 +1,4 @@
+package Modelo;
 public class Usuario {
     private String nombre;
     private String contacto;
@@ -11,6 +12,7 @@ public class Usuario {
         this.correo = correo;
         this.idUsuario = idUsuario;
         this.contrasena = contrasena;
+    }
 
     public boolean login(String contrasena){
         return this.contrasena.equals(contrasena);
@@ -19,5 +21,5 @@ public class Usuario {
     public void logout(){
         
     }
-    }
+    
 }

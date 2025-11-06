@@ -1,3 +1,4 @@
+package Vistas;
 public class VistaIngreso {
     public void ingresar(){
 

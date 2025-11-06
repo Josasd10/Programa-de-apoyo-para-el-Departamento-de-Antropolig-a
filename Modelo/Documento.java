@@ -1,3 +1,6 @@
+package Modelo;
+import java.util.ArrayList;
+
 public class Documento {
     private String nombreDocumento;
     private int idDocumento;

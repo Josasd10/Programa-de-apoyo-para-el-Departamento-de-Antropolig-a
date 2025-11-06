@@ -1,3 +1,4 @@
+package Controladores;
 public class ControladorIngreso {
     public void ingresar(){
 

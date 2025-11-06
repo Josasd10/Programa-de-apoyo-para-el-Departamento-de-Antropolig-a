@@ -1,3 +1,4 @@
+package Modelo;
 public class Etiquetas {
     private String nombreEtiqueta;
     private String descripcionEtiqueta;
