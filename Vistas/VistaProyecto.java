@@ -1,95 +1,83 @@
 package Vistas;
 
-import Modelo.Proyecto;
-import Modelo.Documento;
-
+import Controladores.ControladorProyecto;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.util.List;
 
 public class VistaProyecto extends JFrame {
+    private JTextField txtTitulo;
+    private JTextArea txtDescripcion;
+    private JTextArea txtContenido;
+    private JButton btnGuardar, btnArchivo, btnRegresar;
+    private JList<String> listaProyectos;
+    private DefaultListModel<String> modeloLista;
+    private ControladorProyecto controlador;
+    private File archivoSeleccionado;
 
-    private JLabel tituloLabel;
-    private JTextArea descripcionArea;
-    private JList<String> listaDocumentos;
-    private DefaultListModel<String> modeloDocumentos;
-    private JButton agregarDocumentoButton;
-    private JButton eliminarDocumentoButton;
-
-    private Proyecto proyecto;
-
-    public VistaProyecto(Proyecto proyecto) {
-        this.proyecto = proyecto;
-
-        setTitle("Vista del Proyecto");
-        setSize(600, 400);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    public VistaProyecto(ControladorProyecto controlador) {
+        this.controlador = controlador;
+        setTitle("Gestión de Proyectos");
+        setSize(600, 500);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // Título del proyecto
-        tituloLabel = new JLabel("Proyecto: " + proyecto.getTitulo());
-        tituloLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        add(tituloLabel, BorderLayout.NORTH);
+        JPanel panelFormulario = new JPanel(new GridLayout(5, 2, 10, 10));
+        txtTitulo = new JTextField();
+        txtDescripcion = new JTextArea(3, 20);
+        txtContenido = new JTextArea(5, 20);
+        btnGuardar = new JButton("Guardar Proyecto");
+        btnArchivo = new JButton("Subir Archivo (PDF/Video)");
+        btnRegresar = new JButton("Regresar");
 
-        // Área de descripción
-        descripcionArea = new JTextArea(proyecto.getDescripcion());
-        descripcionArea.setEditable(false);
-        descripcionArea.setLineWrap(true);
-        descripcionArea.setWrapStyleWord(true);
-        add(new JScrollPane(descripcionArea), BorderLayout.CENTER);
+        btnArchivo.addActionListener((ActionEvent e) -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int result = fileChooser.showOpenDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                archivoSeleccionado = fileChooser.getSelectedFile();
+                JOptionPane.showMessageDialog(this, "Archivo seleccionado: " + archivoSeleccionado.getName());
+            }
+        });
 
-        // Lista de documentos
-        modeloDocumentos = new DefaultListModel<>();
-        for (Documento doc : proyecto.getDocumentos()) {
-            modeloDocumentos.addElement(doc.getTitulo());
+        btnGuardar.addActionListener((ActionEvent e) -> {
+            String titulo = txtTitulo.getText();
+            String descripcion = txtDescripcion.getText();
+            String contenido = txtContenido.getText();
+            String archivo = (archivoSeleccionado != null) ? archivoSeleccionado.getAbsolutePath() : "Sin archivo";
+            controlador.guardarProyecto(titulo, descripcion, contenido, archivo);
+        });
+
+        btnRegresar.addActionListener((ActionEvent e) -> controlador.regresar());
+
+        panelFormulario.add(new JLabel("Título:"));
+        panelFormulario.add(txtTitulo);
+        panelFormulario.add(new JLabel("Descripción:"));
+        panelFormulario.add(new JScrollPane(txtDescripcion));
+        panelFormulario.add(new JLabel("Contenido:"));
+        panelFormulario.add(new JScrollPane(txtContenido));
+        panelFormulario.add(btnArchivo);
+        panelFormulario.add(btnGuardar);
+        panelFormulario.add(new JLabel());
+        panelFormulario.add(btnRegresar);
+
+        modeloLista = new DefaultListModel<>();
+        listaProyectos = new JList<>(modeloLista);
+
+        add(panelFormulario, BorderLayout.NORTH);
+        add(new JScrollPane(listaProyectos), BorderLayout.CENTER);
+    }
+
+    public void mostrarMensaje(String mensaje) {
+        JOptionPane.showMessageDialog(this, mensaje);
+    }
+
+    public void actualizarLista(List<String> proyectos) {
+        modeloLista.clear();
+        for (String p : proyectos) {
+            modeloLista.addElement(p);
         }
-
-        listaDocumentos = new JList<>(modeloDocumentos);
-        listaDocumentos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        add(new JScrollPane(listaDocumentos), BorderLayout.EAST);
-
-        // Panel de botones
-        JPanel panelBotones = new JPanel();
-        agregarDocumentoButton = new JButton("Agregar Documento");
-        eliminarDocumentoButton = new JButton("Eliminar Documento");
-        panelBotones.add(agregarDocumentoButton);
-        panelBotones.add(eliminarDocumentoButton);
-        add(panelBotones, BorderLayout.SOUTH);
-
-        // Acción: Agregar documento
-        agregarDocumentoButton.addActionListener(e -> {
-            String titulo = JOptionPane.showInputDialog(this, "Título del documento:");
-            String contenido = JOptionPane.showInputDialog(this, "Contenido del documento:");
-            if (titulo != null && !titulo.trim().isEmpty()) {
-                Documento nuevoDoc = new Documento(titulo, proyecto.getDocumentos().size() + 1, contenido);
-                proyecto.agregarDocumento(nuevoDoc);
-                modeloDocumentos.addElement(nuevoDoc.getTitulo());
-            }
-        });
-
-        // Acción: Eliminar documento
-        eliminarDocumentoButton.addActionListener(e -> {
-            int index = listaDocumentos.getSelectedIndex();
-            if (index != -1) {
-                Documento doc = proyecto.getDocumentos().get(index);
-                proyecto.eliminarDocumento(doc);
-                modeloDocumentos.remove(index);
-            } else {
-                JOptionPane.showMessageDialog(this, "Seleccione un documento para eliminar.");
-            }
-        });
-    }
-
-    // Método para iniciar la vista
-    public void mostrar() {
-        SwingUtilities.invokeLater(() -> setVisible(true));
-    }
-
-    // Método principal de prueba
-    public static void main(String[] args) {
-        Proyecto demo = new Proyecto("Estudio de Cultura Maya", 1);
-        demo.setDescripcion("Este proyecto investiga las prácticas culturales de la civilización Maya.");
-        VistaProyecto vista = new VistaProyecto(demo);
-        vista.mostrar();
     }
 }
